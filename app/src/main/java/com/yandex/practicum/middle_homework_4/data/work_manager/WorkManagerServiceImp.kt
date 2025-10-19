@@ -5,7 +5,9 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.DEFAULT_REFRESH_PERIOD
 import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.FIRST_LAUNCH_DELAY
@@ -15,18 +17,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class WorkManagerServiceImp(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
-    private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
+    scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
 ) : WorkManagerService {
-    private var period:Long = DEFAULT_REFRESH_PERIOD
+    private var period: Long = DEFAULT_REFRESH_PERIOD
     private var delayed: Long = FIRST_LAUNCH_DELAY
 
     init {
         scope.launch {
-            settingsRepository.state.collect{ setting ->
+            settingsRepository.state.collect { setting ->
                 period = setting.periodic
                 delayed = setting.delayed
                 Log.i(TAG, "DataStoreService get data : period = $period | delayed $delayed")
@@ -35,18 +38,18 @@ class WorkManagerServiceImp(
         }
     }
 
-    private fun createConstraints(): Constraints {
-        // Реализуйте метод, возвращающий Constraints
-        // В условиях укажите необходимость наличия интернет соединения.
-    }
+    private fun createConstraints() = Constraints.Builder()
+        .setRequiredNetworkType(networkType = NetworkType.CONNECTED)
+        .build()
 
-    private fun createRequest(repeat: Long, delayed: Long): PeriodicWorkRequest {
-        val networkConstraints = createConstraints()
-        // Допишите реализацию метода и верните WorkRequest на периодическую задачу для RefreshWorker
-        // Интервал запуска задачи (в минутах)  = repeat.
-        // Отсрочка запуска задачи в (секундах) = delayed.
-        // Не забудьте в билдере указать constraints.
-    }
+    private fun createRequest(repeat: Long, delayed: Long) =
+        PeriodicWorkRequestBuilder<RefreshWorker>(
+            repeatInterval = repeat,
+            repeatIntervalTimeUnit = TimeUnit.MINUTES,
+        )
+            .setInitialDelay(delayed, TimeUnit.SECONDS)
+            .setConstraints(createConstraints())
+            .build()
 
     override fun launchRefreshWork() {
         val request: PeriodicWorkRequest =
