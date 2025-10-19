@@ -19,8 +19,8 @@ class SettingsRepositoryImpl(
     private val dataStore: DataStore<Preferences>,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : SettingsRepository {
-    private val REFRESH_PERIOD_KEY = longPreferencesKey("REFRESH_PERIOD")
-    private val FIRST_LAUNCH_DELAY_KEY = longPreferencesKey("FIRST_LAUNCH_DELAY")
+    private val refreshPeriodKey = longPreferencesKey("REFRESH_PERIOD")
+    private val firstLaunchDelayKey = longPreferencesKey("FIRST_LAUNCH_DELAY")
     private val _state = MutableStateFlow(SettingContainer.initial)
     override val state = _state.asStateFlow()
 
@@ -33,8 +33,8 @@ class SettingsRepositoryImpl(
     override suspend fun saveSetting(periodic: Long, delayed: Long) {
         withContext(dispatcher) {
             dataStore.edit { pref: MutablePreferences ->
-                pref[REFRESH_PERIOD_KEY] = periodic
-                pref[FIRST_LAUNCH_DELAY_KEY] = delayed
+                pref[refreshPeriodKey] = periodic
+                pref[firstLaunchDelayKey] = delayed
             }
             _state.value = SettingContainer(periodic, delayed)
         }
@@ -44,8 +44,8 @@ class SettingsRepositoryImpl(
     override suspend fun readSetting() {
         withContext(dispatcher) {
             dataStore.data.collect { pref: Preferences ->
-                val periodic = pref[REFRESH_PERIOD_KEY] ?: SettingContainer.DEFAULT_REFRESH_PERIOD
-                val delayed = pref[FIRST_LAUNCH_DELAY_KEY] ?: SettingContainer.FIRST_LAUNCH_DELAY
+                val periodic = pref[refreshPeriodKey] ?: SettingContainer.DEFAULT_REFRESH_PERIOD
+                val delayed = pref[firstLaunchDelayKey] ?: SettingContainer.FIRST_LAUNCH_DELAY
                 _state.value = SettingContainer(periodic, delayed)
             }
         }
