@@ -20,7 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.yandex.practicum.middle_homework_4.R
 import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.DEFAULT_REFRESH_PERIOD
-import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.FIST_LAUNCH_DELAY
+import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.FIRST_LAUNCH_DELAY
 import com.yandex.practicum.middle_homework_4.ui.AppViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -63,7 +63,7 @@ fun SettingScreen(
         Spacer(Modifier.padding(top = 16.dp))
         Button(onClick = {
             val periodicValue = periodic.toLongOrNull() ?: DEFAULT_REFRESH_PERIOD
-            val delayValue = delayed.toLongOrNull() ?: FIST_LAUNCH_DELAY
+            val delayValue = delayed.toLongOrNull() ?: FIRST_LAUNCH_DELAY
             appViewModel.saveSetting(periodic = periodicValue, delayed = delayValue)
         }) {
             Text(stringResource(R.string.save_setting))

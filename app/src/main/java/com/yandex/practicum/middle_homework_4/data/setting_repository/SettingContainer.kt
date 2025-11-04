@@ -7,10 +7,10 @@ data class SettingContainer(
 
     companion object {
         const val DEFAULT_REFRESH_PERIOD: Long = 15
-        const val FIST_LAUNCH_DELAY: Long = 10
+        const val FIRST_LAUNCH_DELAY: Long = 10
         val initial: SettingContainer = SettingContainer(
             periodic = DEFAULT_REFRESH_PERIOD,
-            delayed = FIST_LAUNCH_DELAY
+            delayed = FIRST_LAUNCH_DELAY
         )
     }
 }
